@@ -1,16 +1,26 @@
 /* eslint-disable prettier/prettier */
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet, Pressable } from "react-native";
 import { RFPercentage } from "react-native-responsive-fontsize";
 import * as yup from "yup";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import ButtonLoader from "../../components/ActivityIndicator";
+import axios from "axios";
+import baseUrl from "../../constants";
 
 const schema = yup.object().shape({
   email: yup.string().required("*Email is required").email("*Invalid email"),
 });
 
 export default function ResetPassword({ navigation }) {
+
+  const [loading, isloading] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState(true);
+  const [isError, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+
+
   const {
     control,
     handleSubmit,
@@ -22,11 +32,26 @@ export default function ResetPassword({ navigation }) {
     },
   });
 
-  const onSubmit = (data) => {
-    // Check if the form is valid and email is not empty
-    if (Object.keys(errors).length === 0 && data.email.trim() !== "") {
-      // Proceed to the next page
-      navigation.navigate("Verification");
+  const onSubmit = async (data) => {
+    const { email } = data
+    isloading(true)
+    setButtonLoading(false)
+    try {
+      const response = await axios.post(`${baseUrl}auth/resetPassword`, data)
+      console.log(response?.data?.status)
+      if (response?.data?.status === 200) {
+        isloading(false)
+        setButtonLoading(true)
+        navigation.navigate('ConfirmOtp', { email: email });
+      }
+    } catch (error) {
+      console.log(error?.response?.data?.message, '??????')
+      if (error?.response?.data?.message) {
+        setErrorMessage(error?.response?.data?.message)
+        isloading(false)
+        setButtonLoading(true)
+        setError(true)
+      }
     }
   };
 
@@ -39,7 +64,7 @@ export default function ResetPassword({ navigation }) {
         render={({ field: { onChange, value } }) => (
           <TextInput
             style={styles.input}
-            placeholder="example:waffles@gmail.com"
+            placeholder="example:user@gmail.com"
             onChangeText={onChange}
             value={value}
           />
@@ -47,8 +72,10 @@ export default function ResetPassword({ navigation }) {
         name="email"
       />
       {errors.email && <Text style={styles.warning}>{errors.email.message}</Text>}
+      {isError && <Text style={styles.error}>{errorMessage}</Text>}
       <Pressable style={styles.sendButton} onPress={handleSubmit(onSubmit)}>
-        <Text style={styles.sendButtonText}>Send</Text>
+        {buttonLoading && <Text style={styles.sendButtonText}>Send</Text>}
+        {loading && <ButtonLoader></ButtonLoader>}
       </Pressable>
     </View>
   );
@@ -60,7 +87,7 @@ const styles = StyleSheet.create({
     fontSize: RFPercentage(1.7),
     marginTop: "2%",
     marginLeft: "13%",
-    alignSelf:'flex-start',
+    alignSelf: 'flex-start',
     fontFamily: "Cabin-Regular",
   },
   container: {
@@ -69,13 +96,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   label: {
-    color  :'#051744',
+    color: '#051744',
     fontFamily: "Inter-Bold",
     fontSize: RFPercentage(5),
     marginTop: RFPercentage(20),
   },
   text: {
-    color : "#000000",
+    color: "#000000",
     fontFamily: "Inter-Bold",
     marginTop: RFPercentage(15),
     marginBottom: RFPercentage(4),

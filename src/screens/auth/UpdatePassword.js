@@ -3,71 +3,106 @@ import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet, Pressable } from "react-native";
 import { RFPercentage } from "react-native-responsive-fontsize";
 import * as yup from "yup";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import ButtonLoader from "../../components/ActivityIndicator";
+import axios from "axios";
+import baseUrl from "../../constants";
 
-const validationSchema = yup.object().shape({
+const schema = yup.object().shape({
   password: yup
     .string()
-    .min(8, "Password must be at least 8 characters")
-    .matches(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least 2 symbols")
-    .required("Password is required"),
-  confirmPassword: yup
+    .required('Password is required')
+    .min(8, 'Password must contain at least 8 characters'),
+  confirmpassword: yup
     .string()
-    .oneOf([yup.ref("password"), null], "Passwords must match")
-    .required("Confirm Password is required"),
+    .required('Confirm the Password')
+    .oneOf([yup.ref('password'), null], 'Password must Match'),
 });
 
-export default function UpdatePassword({ navigation }) {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [errors, setErrors] = useState({ password: "", confirmPassword: "" });
+export default function UpdatePassword({ navigation,route }) {
+  const {email} = route.params
+  const [loading, isloading] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState(true);
+  const [isError, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  const handlePasswordChange = (text) => {
-    setPassword(text);
-    setErrors((prevErrors) => ({ ...prevErrors, password: "" }));
-  };
 
-  const handleConfirmPasswordChange = (text) => {
-    setConfirmPassword(text);
-    setErrors((prevErrors) => ({ ...prevErrors, confirmPassword: "" }));
-  };
-
-  const handleSubmit = async () => {
+  const onSubmit = async (formData) => {
+    console.log(formData)
+    const {  password, confirmPassword } = formData
+    const data = { email, password, confirmPassword }
+    isloading(true)
+    setButtonLoading(false)
     try {
-      await validationSchema.validate({ password, confirmPassword }, { abortEarly: false });
-      // If validation is successful, navigate to the next screen or perform other actions
-      navigation.navigate("Login");
+      const response = await axios.patch(`${baseUrl}auth/updatePassword`, data)
+      console.log(response?.data?.status)
+      if (response?.data?.status === 200) {
+        isloading(false)
+        setButtonLoading(true)
+        navigation.navigate('Login');
+      1234567}
     } catch (error) {
-      error.inner.forEach((err) => {
-        setErrors((prevErrors) => ({ ...prevErrors, [err.path]: err.message }));
-      });
+      console.log(error?.response?.data?.message, '??????')
+      if (error?.response?.data?.message) {
+        setErrorMessage(error?.response?.data?.message)
+        isloading(false)
+        setButtonLoading(true)
+        setError(true)
+      }
     }
   };
-
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      email: "",
+      password: "",
+      userName: "",
+      confirmPassword: "",
+    },
+  });
   return (
     <View style={styles.container}>
       <Text style={styles.text}>New Password</Text>
       <View style={styles.labelContainer}>
         <Text style={styles.label}>Enter New Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="*Password"
-          secureTextEntry
-          onChangeText={handlePasswordChange}
-          value={password}
+        <Controller control={control}
+          rules={{ required: true, }}
+          render={({ field: { onChange, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder="Enter Your Password"
+              secureTextEntry={true}
+              onChangeText={onChange}
+              value={value}
+            />)}
+          name="password"
         />
-        <Text style={styles.errorText}>{errors.password}</Text>
+        {errors?.password && <Text style={styles.warning}>{errors?.password.message}</Text>}
         <Text style={styles.label}>Confirm New Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="*Confirm Password"
-          secureTextEntry
-          onChangeText={handleConfirmPasswordChange}
-          value={confirmPassword}
+        <Controller control={control}
+          rules={{ required: true, }}
+          render={({ field: { onChange, value } }) => (
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm The Password"
+              secureTextEntry={true}
+              onChangeText={onChange}
+              value={value}
+            />
+          )}
+          name="confirmpassword"
         />
-        <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+        {errors?.confirmpassword && <Text style={styles.warning}>{errors?.confirmpassword.message}</Text>}
+        {isError && <Text style={styles.error}>{errorMessage}</Text>}
       </View>
-      <Pressable style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Submit</Text>
+      <Pressable style={styles.button} onPress={handleSubmit(onSubmit)}>
+        {buttonLoading && <Text style={styles.buttonText}>Submit</Text>}
+        {loading && <ButtonLoader></ButtonLoader>}
       </Pressable>
     </View>
   );
@@ -80,18 +115,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    color : "#051744",
+    color: "#051744",
     fontFamily: "Inter-Bold",
     marginTop: RFPercentage(15),
     fontSize: RFPercentage(4),
   },
   labelContainer: {
-    
+
     width: "80%",
     marginTop: RFPercentage(4),
   },
   label: {
-    color : "#000000",
+    color: "#000000",
     fontFamily: "Inter-Bold",
     fontSize: RFPercentage(2.2),
     marginBottom: RFPercentage(3),

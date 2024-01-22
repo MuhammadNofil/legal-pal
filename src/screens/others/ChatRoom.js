@@ -24,7 +24,7 @@ const dummyData = [
     { id: 16, text: 'What about you?', user: { id: 1, name: 'From' } },
     // Add more messages as needed
 ];
-const ChatScreen = () => {
+const ChatRoom = () => {
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState('');
     const onSendMessage = () => {
@@ -52,12 +52,13 @@ const ChatScreen = () => {
 
     return (
         <>
-            <Header />
             <SafeAreaView style={styles.mainContainer}>
-                <ScrollView contentContainerStyle={{ padding: 15 }}>
-                <View style={{ backgroundColor: '#151E70', height: 150, flex: 1,padding :5 ,flexDirection : "row"}}>
-                        <Image source={require("../../assets/images/bot.png")}/>
-                        <Text style={{color : '#FFFF',fontSize:25,marginTop : 40,marginLeft : 10}}>Legal Assistant</Text>
+                <ScrollView contentContainerStyle={{}}>
+                <View style={{ backgroundColor: '#151E70', width: '100%', height: 70 }}>
+                        <View style={{ display: 'flex', flexDirection: "row", margin: 20, gap: 20 }}>
+                            <Image source={require('../../assets/images/Dummy.png')} style={{width : 40,height :40,borderRadius :30}} />
+                            <Text style={{ color: '#FFFF', fontSize: 25 }}>John Doe</Text>
+                        </View>
                     </View>
 
                     <SafeAreaView style={styles.mainContainer}>
@@ -97,7 +98,7 @@ const ChatScreen = () => {
     )
 }
 
-export default ChatScreen
+export default ChatRoom
 
 const styles = StyleSheet.create({
     container: {

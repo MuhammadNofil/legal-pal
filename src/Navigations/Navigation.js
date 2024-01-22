@@ -19,10 +19,12 @@ import PersonalDetails from '../screens/others/PersonalDetails.js'
 import ChatScreen from '../screens/others/ChatScreen.js'
 import Notifications from '../screens/others/Notification.js'
 import Room from '../screens/others/Room.js'
+import ChatRoom from '../screens/others/ChatRoom.js'
+import LawyerDashboard from '../screens/lawyer/LawyerDashboard.js'
 const Stack = createStackNavigator();
 const Navigation = () => {
   return (
-    <Stack.Navigator initialRouteName="Room">
+    <Stack.Navigator initialRouteName="Login">
       <Stack.Screen name="Startpage" component={Startpage} options={{headerShown: false}}/>
       <Stack.Screen name="Login" component={Login} options={{headerShown: false}}/>
       <Stack.Screen name="Signup" component={SignUp} options={{headerShown : false}} />
@@ -40,6 +42,8 @@ const Navigation = () => {
       <Stack.Screen name="ChatScreen" component={ChatScreen} options={{headerShown : false}} />
       <Stack.Screen name="Notifications" component={Notifications} options={{headerShown : false}} />
       <Stack.Screen name="Room" component={Room} options={{headerShown : false}} />
+      <Stack.Screen name="ChatRoom" component={ChatRoom} options={{headerShown : false}} />
+      <Stack.Screen name="LawyerDashboard" component={LawyerDashboard} options={{headerShown : false}} />
     </Stack.Navigator>
   )
 }

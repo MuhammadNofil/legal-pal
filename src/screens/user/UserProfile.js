@@ -45,7 +45,7 @@ const UserProfile = () => {
                         </View>
                         <View style={{ backgroundColor: "#000000", width: '90%', height: 1, marginTop: 10 }}></View>
 
-                        
+
                         <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', paddingHorizontal: 20, marginTop: 20 }}>
                             <Icon name="user" size={30} color="#151E70" style={{ marginRight: 10 }} />
                             <Text style={{ fontSize: 22, color: '#000000', fontFamily: 'Inter-Bold', flex: 1, marginLeft: 40 }}>Update Profile</Text>
@@ -53,7 +53,7 @@ const UserProfile = () => {
                         </View>
                         <View style={{ backgroundColor: "#000000", width: '90%', height: 1, marginTop: 10 }}></View>
 
-                        
+
                     </View>
 
                 </SafeAreaView>

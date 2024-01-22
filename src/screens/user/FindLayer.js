@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { StyleSheet, Text, SafeAreaView, ScrollView, Pressable, View, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -10,7 +10,14 @@ import Card from '../../components/Card';
 import { TextInput } from 'react-native-gesture-handler';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import DropDownPicker from 'react-native-dropdown-picker';
-const FindLawyer = ({navigation}) => {
+import PageLoader from '../../components/PageLoader';
+import axios from 'axios';
+import baseUrl from '../../constants';
+const FindLawyer = ({ navigation }) => {
+    const [data, setData] = useState([])
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterApi, setFilterApi] = useState('')
+    const [isLoading, setIsLoading] = useState(true)
     const [open, setOpen] = useState(false);
     const [filter, setFilter] = useState(false);
     const [value, setValue] = useState(null);
@@ -20,73 +27,85 @@ const FindLawyer = ({navigation}) => {
         { label: 3, value: 3 },
         { label: 4, value: 4 },
     ]);
-    const category = ['Criminal', 'Family', 'Divorce', 'Property', 'Civil', 'Imigiration', 'Buisness', 'Prosecutor', 'Tax']
+    const category = ['criminal', 'family', 'divorce', 'property', 'civil', 'imigiration', 'buisness', 'prosecutor', 'tax']
     const [activeChip, setActiveChip] = useState(category[0]);
 
+
+    const debounce = (func, delay) => {
+        let timeoutId;
+
+        return (...args) => {
+            clearTimeout(timeoutId);
+
+            timeoutId = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    };
     const handleChipPress = (category) => {
         setActiveChip(category);
+        setFilterApi(category)
     };
-    const filterHandler = () =>{
+    const filterHandler = () => {
         setFilter(!filter)
     }
+    const fetchLawyer = async () => {
+        try {
+            const response = await axios.get(`${baseUrl}lawyer?search=${searchTerm}&filter=${filterApi}`)
+            if (response?.data?.status === 200) {
+                setData(response?.data?.data)
+                setIsLoading(false)
+            }
+        } catch (error) {
+            console.log(error?.response?.data)
+
+        }
+    }
+
+
+
+
+    const searchHandler = (text) => {
+        setSearchTerm(text);
+    };
+
+    useEffect(() => {
+        fetchLawyer()
+    }, [searchTerm, filterApi])
     return (
         <>
-            <Header />
-            <ScrollView style={styles.mainContainer}>
-                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',margin:10 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Image source={require('../../assets/images/landmark.png')} />
-                        <Text style={styles.Heading}>Find Lawyer</Text>
-                    </View>
-                    <Icon name="filter" size={24} color="#000" onPress={filterHandler}/>
-                </View>
-                {filter && <SafeAreaView style={{ height: '10%', margin: 10 }}>
-                    <SafeAreaView>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="search with city name"
-                        //   onChangeText={(text) => setEmail(text)}
-                        //   value={email}
-                        />
-                        <View style={styles.dropDownw}>
-                            <DropDownPicker
-                                open={open}
-                                value={value}
-                                items={items}
-                                setOpen={setOpen}
-                                setValue={setValue}
-                                setItems={setItems}
-                                placeholder="filter with experience"
-                            />
-                        </View>
-                        <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} contentContainerStyle={styles.chipContainer}>
-                            {category.map((category, i) => (
-                                <Pressable
-                                    key={i}
-                                    style={[
-                                        styles.chips,
-                                        {
-                                            backgroundColor: activeChip === category ? '#151E70' : '#D9D9D9',
-                                        },
-                                    ]}
-                                    onPress={() => handleChipPress(category)}
-                                >
-                                    <Text style={{ color: activeChip === category ? '#ffff' : '#000000' }}>{category}</Text>
-                                </Pressable>
-                            ))}
+            {
+                isLoading ? (<PageLoader />) : (
+                    <>
+                        <Header />
+                        <ScrollView style={styles.mainContainer}>
+                            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', margin: 10 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Image source={require('../../assets/images/landmark.png')} />
+                                    <Text style={styles.Heading}>Find Lawyer</Text>
+                                </View>
+                            </View>
+                            
+                            {
+                                !!data[0] ? <View>
+                                    {
+                                        data?.map(((ele, i) => {
+                                            return (
+                                                <Card ele={ele} key={i} />
+                                            )
+                                        }))
+                                    }
+                                </View> : (
+                                    <View style={{justifyContent :'center',alignItems : 'center'}}>
+                                        <Text style={{color : '#000000' , fontFamily:'Inter-Bold'}}>No data :(</Text>
+                                    </View>
+                                )
+                            }
                         </ScrollView>
-                    </SafeAreaView>
-
-                </SafeAreaView>}
-                <SafeAreaView >
-                    <Card />
-                    <Card />
-                    <Card />
-                    <Card />
-                    <Card />
-                </SafeAreaView>
-            </ScrollView>
-            <Footer />
+                        <Footer />
+                    </>
+                )
+            }
         </>
     )
 }

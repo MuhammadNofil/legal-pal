@@ -12,7 +12,7 @@ const Header = () => {
                 {/* <Text style={styles.logoText}>LEGAL PAL</Text> */}
             </View>
             <View style={styles.rightContainer}>
-                <Pressable>
+                <Pressable onPress={()=> navigation.navigate('Room')}>
                 <Image source={require('../assets/images/vector3.png')} style={styles.icon} />
                 </Pressable>
                 <Pressable onPress={()=>navigation.navigate('Notifications')}>

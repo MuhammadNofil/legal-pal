@@ -5,45 +5,102 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
 
 
-const Card = () => {
+const Card = ({ ele }) => {
+    const [cardData, setCardDat] = useState(ele)
     const navigation = useNavigation();
+    const NavigationHandler = async (id) => {
+        console.log(id,"Id")
+        // () => navigation.navigate('LawyerProfile')
+    }
     return (
-        <View style={styles.cardContainer}>
-            <View style={styles.header}>
-                <Image
-                    source={require('../assets/images/Dummy.png')}
-                    style={styles.image}
-                />
-                <View style={styles.headerText}>
-                    <Text style={styles.name}>John Smith</Text>
-                    <Text style={styles.experience}>Criminal Lawyer</Text>
-                    <Text style={styles.experience}>6 Years Experience</Text>
-                    <Text style={styles.experience}>
-                        <Icon name="map-marker" size={20} color="#151E70" /> Karachi
-                    </Text>
-                </View>
-            </View>
-            <View style={styles.divider}></View>
+        <>
+            {/* {!!cardData[0] ? (
+                <>
+                    {cardData?.map((ele, i) => {
+                        return (
+                            <View style={styles.cardContainer} key={i}>
+                                <View style={styles.header}>
+                                    <Image
+                                        source={require('../assets/images/Dummy.png')}
+                                        style={styles.image}
+                                    />
+                                    <View style={styles.headerText}>
+                                        <Text style={styles.name}>{ele?.userName}</Text>
+                                        <Text style={styles.experience}>{ele?.lawyerType}</Text>
+                                        <Text style={styles.experience}> {ele?.experience} Years Experience</Text>
+                                        <Text style={styles.experience}>
+                                            <Icon name="map-marker" size={20} color="#151E70" /> {ele?.city}
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View style={styles.divider}></View>
 
-            <View style={styles.details}>
-                <View style={styles.detailColumn}>
-                    <Icon name="phone" size={20} color="#151E70" />
-                    <Text style={styles.detailItem}>(123) 456-7890</Text>
+                                <View style={styles.details}>
+                                    <View style={styles.detailColumn}>
+                                        <Icon name="phone" size={20} color="#151E70" />
+                                        <Text style={styles.detailItem}>{ele?.contactNo}</Text>
+                                    </View>
+                                    <View style={styles.detailColumn}>
+                                        <Icon name="envelope" size={20} color="#151E70" />
+                                        <Text style={styles.detailItem}>{ele?.email}</Text>
+                                    </View>
+                                </View>
+                                <Text style={styles.detailItem} >
+                                    <Icon name="map-marker" size={20} color="#151E70" />
+                                    {ele?.address}</Text>
+                                <View style={styles.divider}></View>
+                                <Pressable style={styles.footer}>
+                                    <Text style={styles.footerItem} onPress={() => navigation.navigate('LawyerProfile')}>View Profile</Text>
+                                </Pressable>
+                            </View>
+                        );
+                    })}
+                </>
+            ) : (
+                <>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 100 }}>
+                        <Text style={{ color: "#000000", fontFamily: 'Inter-Bold' }}>No data to show :(</Text>
+                    </View>
+                </>
+            )} */}
+            <View style={styles.cardContainer}>
+                <View style={styles.header}>
+                    <Image
+                        source={require('../assets/images/Dummy.png')}
+                        style={styles.image}
+                    />
+                    <View style={styles.headerText}>
+                        <Text style={styles.name}>{ele?.userName}</Text>
+                        <Text style={styles.experience}>{ele?.lawyerType}</Text>
+                        <Text style={styles.experience}> {ele?.experience} Years Experience</Text>
+                        <Text style={styles.experience}>
+                            <Icon name="map-marker" size={20} color="#151E70" /> {ele?.city}
+                        </Text>
+                    </View>
                 </View>
-                <View style={styles.detailColumn}>
-                    <Icon name="envelope" size={20} color="#151E70" />
-                    <Text style={styles.detailItem}>lawyer@gmail.com</Text>
+                <View style={styles.divider}></View>
+
+                <View style={styles.details}>
+                    <View style={styles.detailColumn}>
+                        <Icon name="phone" size={20} color="#151E70" />
+                        <Text style={styles.detailItem}>{ele?.contactNo}</Text>
+                    </View>
+                    <View style={styles.detailColumn}>
+                        <Icon name="envelope" size={20} color="#151E70" />
+                        <Text style={styles.detailItem}>{ele?.email}</Text>
+                    </View>
                 </View>
+                <Text style={styles.detailItem} >
+                    <Icon name="map-marker" size={20} color="#151E70" />
+                    {ele?.address}</Text>
+                <View style={styles.divider}></View>
+                <Pressable style={styles.footer} onPress={() => navigation.navigate('LawyerProfile',{id : ele?._id})}>
+                    <Text style={styles.footerItem} >View Profile</Text>
+                </Pressable>
             </View>
-            <Text style={styles.detailItem} >
-                <Icon name="map-marker" size={20} color="#151E70" />
-                A block,sector 32, Gulshan e Iqbal, Karachi, Pakistan</Text>
-            <View style={styles.divider}></View>
-            <Pressable style={styles.footer}>
-                <Text style={styles.footerItem} onPress={()=> navigation.navigate('LawyerProfile')}>View Profile</Text>
-            </Pressable>
-        </View>
-    )
+        </>
+    );
+
 }
 
 export default Card

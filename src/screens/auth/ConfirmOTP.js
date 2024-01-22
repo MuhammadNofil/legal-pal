@@ -1,12 +1,20 @@
+/* eslint-disable prettier/prettier */
+import axios from "axios";
 import React, { useState, useRef } from "react";
 import { View, Text, TextInput, StyleSheet, Pressable } from "react-native";
 import { RFPercentage } from "react-native-responsive-fontsize";
+import baseUrl from "../../constants";
+import ButtonLoader from "../../components/ActivityIndicator";
 
-export default function ConfirmOTP({ navigation }) {
+export default function ConfirmOTP({ navigation, route }) {
+  const { email } = route.params
+  console.log(email, 'this is from confirm otp')
   const [code, setCode] = useState(["", "", "", ""]);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   const codeRefs = useRef([useRef(null), useRef(null), useRef(null), useRef(null)]);
-
+  const [loading, isloading] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState(false);
   const handleCodeChange = (text, index) => {
     if (!/^\d+$/.test(text)) {
       setError("Please enter only digits");
@@ -29,15 +37,47 @@ export default function ConfirmOTP({ navigation }) {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Check for error and non-digit characters
     if (error || code.some((value) => !/^\d+$/.test(value))) {
       setError("Please enter only digits in all fields");
     } else {
       setError("");
-      navigation.navigate('New Password');
+      console.log(code, 'codeee')
+      const concatenatedString = code.join("");
+      isloading(true)
+      setButtonLoading(false)
+      try {
+        const response = await axios.post(`${baseUrl}auth/verifyOtp`, { email: email, Otp: concatenatedString })
+        console.log(response?.data)
+        if (response?.data?.status === 200) {
+          isloading(false)
+          setButtonLoading(true)
+          navigation.navigate('updatePassword', { email: email })
+        }
+      } catch (error) {
+        console.log(error?.response?.data?.message, '??????')
+        if (error?.response?.data?.message) {
+          setError(error?.response?.data?.message)
+          isloading(false)
+          setButtonLoading(true)
+          // setError(true)
+        }
+      }
     }
   };
+
+
+  const resendOtpHandler = async () => {
+    try {
+      const response = await axios.patch(`${baseUrl}auth/resendotp`,{email})
+      if (response?.data?.status === 200) {
+        setSuccessMessage(response?.data?.message)
+      }
+    } catch (error) {
+      setError(error?.response?.data?.message)
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -62,10 +102,12 @@ export default function ConfirmOTP({ navigation }) {
         ))}
       </View>
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {successMessage && <Text style={styles.successtext}>{successMessage}</Text>}
       <Pressable style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Submit</Text>
+        {buttonLoading && <Text style={styles.buttonText}>Submit</Text>}
+        {loading && <ButtonLoader />}
       </Pressable>
-      <Pressable style={styles.resendCode} onPress={() => {}}>
+      <Pressable style={styles.resendCode} onPress={resendOtpHandler}>
         <Text style={styles.resendCodeText}>
           Didn't Receive a Code?{" "}
           <Text style={styles.resendtextemail}>Resend</Text>
@@ -81,14 +123,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     alignItems: "center",
   },
-  text:{
-    color  :"#051744",
+  text: {
+    color: "#051744",
     fontFamily: "Cabin-Regular",
-    marginTop:RFPercentage(15),
-    fontSize:RFPercentage(4),
+    marginTop: RFPercentage(15),
+    fontSize: RFPercentage(4),
   },
   label: {
-    color : "#000000",
+    color: "#000000",
     fontFamily: "Cabin-Regular",
     fontSize: RFPercentage(2.5),
     marginBottom: RFPercentage(6),
@@ -99,16 +141,16 @@ const styles = StyleSheet.create({
 
   },
   codeInput: {
-    backgroundColor:'#051744',
+    backgroundColor: '#051744',
     // borderColor : "#FFFFFF",
     // borderBlockColor : "#FFFFFF",
-    padding:  RFPercentage(1.4),
+    padding: RFPercentage(1.4),
     fontFamily: "Cabin-Regular",
-    fontSize:  RFPercentage(2),
-    margin:  RFPercentage(2),
+    fontSize: RFPercentage(2),
+    margin: RFPercentage(2),
     width: "12%",
     textAlign: "center",
-    color:'white',
+    color: 'white',
   },
   submitButton: {
     backgroundColor: "#051744",
@@ -141,6 +183,12 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: "red",
+    fontFamily: "Cabin-Regular",
+    fontSize: RFPercentage(1.7),
+    marginTop: RFPercentage(2),
+  },
+  successtext: {
+    color: "green",
     fontFamily: "Cabin-Regular",
     fontSize: RFPercentage(1.7),
     marginTop: RFPercentage(2),

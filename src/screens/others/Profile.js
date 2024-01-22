@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,86 +9,104 @@ import {
   Image,
 } from 'react-native';
 import * as yup from 'yup';
-import {Controller, useForm} from 'react-hook-form';
-import {yupResolver} from '@hookform/resolvers/yup';
+import { Controller, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 // import axios from "axios";
-import {RFPercentage} from 'react-native-responsive-fontsize';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 // import { Picker } from '@react-native-picker/picker';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-export default function Profile() {
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import ButtonLoader from '../../components/ActivityIndicator';
+import axios from "axios";
+import baseUrl from '../../constants';
+export default function Profile({ navigation, route }) {
+  const { userId } = route.params;
+  console.log(userId)
   const schema = yup.object().shape({
-    email: yup.string().required('Email is required').email('Invalid email'),
-    password: yup
+    city: yup
       .string()
-      .required('Password is required')
-      .min(8, 'Password must contain at least 8 characters'),
-    name: yup
+      .required('City is required'),
+    address: yup
       .string()
-      .required('Username is Required')
-      .min(8, 'Username must contain atleast 8 Characters'),
-    confirmpassword: yup
+      .required('Address is Required'),
+    contactNo: yup
       .string()
-      .required('Confirm the Password')
-      .oneOf([yup.ref('password'), null], 'Password must Match'),
+      .required('Phone Number is Required'),
   });
 
-  // const [email, setEmail] = useState("");
-  // const [password, setPassword] = useState("");
-  // const [username, setUsername] = useState("");
-  // const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [buttonLoading, setButtonLoading] = useState(true);
+  const [isError, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [loading, isloading] = useState(false);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([
-    {label: 'User', value: 'user'},
-    {label: 'Lawyer', value: 'lawyer'},
+    { label: 'User', value: 'user' },
+    { label: 'Lawyer', value: 'lawyer' },
   ]);
 
   const [open2, setOpen2] = useState(false);
   const [value2, setValue2] = useState(null);
   const [items2, setItems2] = useState([
-    {label: 'Criminal', value: 'criminal'},
-    {label: 'Family', value: 'family'},
+    { label: 'Criminal', value: 'criminal' },
+    { label: 'Family', value: 'family' },
   ]);
-  const [dropDown,setDropdown] = useState(false)
+  const [dropDown, setDropdown] = useState(false)
   const handleSelection = data => {
     console.log(data)
     if (data === 'lawyer') {
-        console.log('lawyer')
-        setDropdown(true)
-    }else{
-        setDropdown(false)
+      console.log('lawyer')
+      setDropdown(true)
+    } else {
+      setDropdown(false)
     }
   };
   const {
     control,
     handleSubmit,
-    formState: {errors},
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      email: '',
-      password: '',
-      name: '',
-      confirmPassword: '',
+      city: '',
+      address: '',
+      contactNo: '',
     },
   });
   const onPressSend = async formData => {
-    // console.log(formData);
-    // const {name,password,email} = formData
-    // const data = {name,password,email}
-    // try {
-    //   const signUp = await axios.post('https://8a9e-39-34-140-124.ngrok-free.app/user/register',data)
-    //   isloading(true);
-    //   console.log(signUp.data);
-    //   if (signUp?.data?.success){
-    //     navigation.navigate('Login');
-    //   }
-    // } catch (error) {
-    //   console.log(error)
-    // }
+    console.log(userId, '??????/')
+    let data ;
+    if (value) {
+       data = { userId, role :value, lawyerType:value2,...formData }
+    } 
+    else if(value && value2){
+      data = { userId, role :value, lawyerType:value2,...formData }
+    }
+    else {
+       data = { userId, ...formData }
+    }
+    console.log(data,"dataaa")
+    isloading(true)
+    setButtonLoading(false)
+    try {
+      const response = await axios.patch(`${baseUrl}auth/updateProfile`,  data)
+      console.log(response?.data?.status)
+      if (response?.data?.status === 200) {
+        isloading(false)
+        setButtonLoading(true)
+        navigation.navigate('Login');
+      }
+    } catch (error) {
+      console.log(error?.response?.data?.message, '??????')
+      if (error?.response?.data?.message) {
+        setErrorMessage(error?.response?.data?.message)
+        isloading(false)
+        setButtonLoading(true)
+        setError(true)
+      }
+    }
   };
 
   return (
@@ -100,54 +118,54 @@ export default function Profile() {
         <Text style={styles.placeholder}>City</Text>
         <Controller
           control={control}
-          rules={{required: true}}
-          render={({field: {onChange, value}}) => (
+          rules={{ required: true }}
+          render={({ field: { onChange, value } }) => (
             <TextInput
               style={styles.input}
-              placeholder="Enter Email ID"
+              placeholder="Enter ECity"
               onChangeText={onChange}
               value={value}
             />
           )}
-          name="email"
+          name="city"
         />
-        {errors.email && (
-          <Text style={styles.warning}>{errors.email.message}</Text>
+        {errors.city && (
+          <Text style={styles.warning}>{errors.city.message}</Text>
         )}
         <Text style={styles.placeholder}>Address</Text>
         <Controller
           control={control}
-          rules={{required: true}}
-          render={({field: {onChange, value}}) => (
+          rules={{ required: true }}
+          render={({ field: { onChange, value } }) => (
             <TextInput
               style={styles.input}
-              placeholder="Enter a Username"
+              placeholder="Enter Address"
               onChangeText={onChange}
               value={value}
             />
           )}
-          name="name"
+          name="address"
         />
-        {errors.name && (
-          <Text style={styles.warning}>{errors.name.message}</Text>
+        {errors.address && (
+          <Text style={styles.warning}>{errors.address.message}</Text>
         )}
         <Text style={styles.placeholder}>Phone</Text>
         <Controller
           control={control}
-          rules={{required: true}}
-          render={({field: {onChange, value}}) => (
+          rules={{ required: true }}
+          render={({ field: { onChange, value } }) => (
             <TextInput
               style={styles.input}
-              placeholder="Enter Your Password"
-              secureTextEntry={true}
+              placeholder="Enter Phone no"
+              // secureTextEntry={true}
               onChangeText={onChange}
               value={value}
             />
           )}
-          name="password"
+          name="contactNo"
         />
-        {errors?.password && (
-          <Text style={styles.warning}>{errors?.password.message}</Text>
+        {errors?.contactNo && (
+          <Text style={styles.warning}>{errors?.contactNo.message}</Text>
         )}
         {/* {errors?.confirmpassword && <Text style={styles.warning}>{errors?.confirmpassword.message}</Text>} */}
         <View style={styles.dropDownw}>
@@ -173,12 +191,14 @@ export default function Profile() {
             placeholder="LawyerType"
           />
         </View>}
-        <Pressable
+        {isError && <Text style={styles.error}>{errorMessage}</Text>}
+        <TouchableOpacity
           style={styles.buttonregister}
           onPress={handleSubmit(onPressSend)}
           disabled={loading ? true : false}>
-          <Text style={styles.button}>Submit</Text>
-        </Pressable>
+          {buttonLoading && <Text style={styles.button}>Submit</Text>}
+          {loading && <ButtonLoader />}
+        </TouchableOpacity>
         <View style={styles.container}></View>
       </View>
     </SafeAreaView>
@@ -209,6 +229,15 @@ const styles = StyleSheet.create({
     height: '20%',
     borderRadius: 50,
     // borderColor : "#0000"
+  },
+  error: {
+    fontFamily: "Inter-Bold",
+    color: 'red',
+    marginBottom: '2%',
+    marginTop: "2%",
+    fontSize: RFPercentage(2),
+    marginLeft: 70,
+    marginTop: 10
   },
   tag: {
     marginTop: '5%',

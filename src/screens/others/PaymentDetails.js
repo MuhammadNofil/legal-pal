@@ -19,52 +19,43 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
+import ButtonLoader from '../../components/ActivityIndicator';
+import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import baseUrl from '../../constants';
+export default function PaymentDetails({ navigation, route }) {
+    const { user } = route.params
 
-export default function PaymentDetails() {
+    const RoleHandler = async () => {
+        if (user?.role === 'lawyer') {
+            navigation.navigate('LawyerDashboard')
+        } else {
+            navigation.navigate('Userhome')
+        }
+    }
+    const [loading, isloading] = useState(false);
+    const [buttonLoading, setButtonLoading] = useState(true);
+    const [isError, setError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(null);
+
+    console.log(user, 'user')
     const schema = yup.object().shape({
-        email: yup.string().required('Email is required').email('Invalid email'),
-        password: yup
+        cardNumber: yup
             .string()
-            .required('Password is required')
-            .min(8, 'Password must contain at least 8 characters'),
-        name: yup
+            .required('Card number is required')
+            .matches(/^\d{14}$/, 'Card number must be 14 digits'),
+
+        cvc: yup
             .string()
-            .required('Username is Required')
-            .min(8, 'Username must contain atleast 8 Characters'),
-        confirmpassword: yup
+            .required('CVC is required')
+            .matches(/^\d{3}$/, 'CVC must be 3 digits'),
+
+        expiry: yup
             .string()
-            .required('Confirm the Password')
-            .oneOf([yup.ref('password'), null], 'Password must Match'),
+            .required('Expiry date is required')
+            .matches(/^(0[1-9]|1[0-2])\/\d{2}$/, 'Expiry date must be in MM/YY format'),
     });
 
-    // const [email, setEmail] = useState("");
-    // const [password, setPassword] = useState("");
-    // const [username, setUsername] = useState("");
-    // const [confirmPassword, setConfirmPassword] = useState("");
-    const [loading, isloading] = useState(false);
-    const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(null);
-    const [items, setItems] = useState([
-        { label: 'User', value: 'user' },
-        { label: 'Lawyer', value: 'lawyer' },
-    ]);
-
-    const [open2, setOpen2] = useState(false);
-    const [value2, setValue2] = useState(null);
-    const [items2, setItems2] = useState([
-        { label: 'Criminal', value: 'criminal' },
-        { label: 'Family', value: 'family' },
-    ]);
-    const [dropDown, setDropdown] = useState(false)
-    const handleSelection = data => {
-        console.log(data)
-        if (data === 'lawyer') {
-            console.log('lawyer')
-            setDropdown(true)
-        } else {
-            setDropdown(false)
-        }
-    };
     const {
         control,
         handleSubmit,
@@ -72,26 +63,39 @@ export default function PaymentDetails() {
     } = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
-            email: '',
-            password: '',
-            name: '',
-            confirmPassword: '',
+            cardNumber: '',
+            cvc: '',
+            expiry: '',
         },
     });
     const onPressSend = async formData => {
+        const data = {userId : user?._id,...formData}
         // console.log(formData);
-        // const {name,password,email} = formData
-        // const data = {name,password,email}
-        // try {
-        //   const signUp = await axios.post('https://8a9e-39-34-140-124.ngrok-free.app/user/register',data)
-        //   isloading(true);
-        //   console.log(signUp.data);
-        //   if (signUp?.data?.success){
-        //     navigation.navigate('Login');
-        //   }
-        // } catch (error) {
-        //   console.log(error)
-        // }
+        isloading(true)
+        setButtonLoading(false)
+        try {
+            const token = await AsyncStorage.getItem('token')
+            const response = await axios.post(
+                `${baseUrl}card`,
+                data, // Move the data parameter outside of the headers object
+                {
+                    headers: {
+                        Authorization: token,
+                        // Add other headers if needed
+                    },
+                }
+            );
+            if (response?.data?.status === 200) {
+                RoleHandler()
+            }
+        } catch (error) {
+            if (error?.response?.data?.message) {
+                setErrorMessage(error?.response?.data?.message)
+                isloading(false)
+                setButtonLoading(true)
+                setError(true)
+            }
+        }
     };
 
     return (
@@ -116,10 +120,10 @@ export default function PaymentDetails() {
                                 value={value}
                             />
                         )}
-                        name="email"
+                        name="cardNumber"
                     />
-                    {errors.email && (
-                        <Text style={styles.warning}>{errors.email.message}</Text>
+                    {errors.cardNumber && (
+                        <Text style={styles.warning}>{errors.cardNumber.message}</Text>
                     )}
                     <Text style={styles.placeholder}>CVC</Text>
                     <Controller
@@ -133,10 +137,10 @@ export default function PaymentDetails() {
                                 value={value}
                             />
                         )}
-                        name="name"
+                        name="cvc"
                     />
-                    {errors.name && (
-                        <Text style={styles.warning}>{errors.name.message}</Text>
+                    {errors.cvc && (
+                        <Text style={styles.warning}>{errors.cvc.message}</Text>
                     )}
                     <Text style={styles.placeholder}>Expirey Date</Text>
                     <Controller
@@ -146,26 +150,28 @@ export default function PaymentDetails() {
                             <TextInput
                                 style={styles.input}
                                 placeholder="Expirey date"
-                                secureTextEntry={true}
+                                // secureTextEntry={true}
                                 onChangeText={onChange}
                                 value={value}
                             />
                         )}
-                        name="password"
+                        name="expiry"
                     />
-                    {errors?.password && (
-                        <Text style={styles.warning}>{errors?.password.message}</Text>
+                    {errors?.expiry && (
+                        <Text style={styles.warning}>{errors?.expiry.message}</Text>
                     )}
                     {/* {errors?.confirmpassword && <Text style={styles.warning}>{errors?.confirmpassword.message}</Text>} */}
+                    {isError && <Text style={styles.error}>{errorMessage}</Text>}
                     <Pressable
                         style={styles.buttonregister}
                         onPress={handleSubmit(onPressSend)}
                         disabled={loading ? true : false}>
-                        <Text style={styles.button}>Submit</Text>
+                        {buttonLoading && <Text style={styles.button}>Submit</Text>}
+                        {loading && <ButtonLoader />}
                     </Pressable>
                     <Pressable
                         style={styles.buttonregister}
-                        onPress={handleSubmit(onPressSend)}
+                        onPress={RoleHandler}
                         disabled={loading ? true : false}>
                         <Text style={styles.button}>Skip</Text>
                     </Pressable>
@@ -181,26 +187,26 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-      },
-      keyboardAvoidingContainer: {
+    },
+    keyboardAvoidingContainer: {
         flex: 1,
         width: '100%', // Add this line to make sure the width is 100%
         justifyContent: 'center',
         alignItems: 'center',
-      },
-      scrollContainer: {
+    },
+    scrollContainer: {
         flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
-      },
-      input: {
+    },
+    input: {
         height: 40,
         borderColor: 'gray',
         borderWidth: 1,
         marginBottom: 20,
         paddingLeft: 10,
-      },
+    },
     placeholder: {
         top: '5%',
         left: '3%',

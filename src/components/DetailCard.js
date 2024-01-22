@@ -3,7 +3,7 @@ import { StyleSheet, Text, SafeAreaView, ScrollView, Pressable, View, Image } fr
 import React, { useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const DetailCard = () => {
+const DetailCard = ({data}) => {
     return (
         <View style={styles.cardContainer}>
             <View style={styles.header}>
@@ -12,11 +12,11 @@ const DetailCard = () => {
                     style={styles.image}
                 />
                 <View style={styles.headerText}>
-                    <Text style={styles.name}>John Smith</Text>
-                    <Text style={styles.experience}>Criminal Lawyer</Text>
-                    <Text style={styles.experience}>6 Years Experience</Text>
+                    <Text style={styles.name}>{data?.userName}</Text>
+                    <Text style={styles.experience}>{data?.lawyerType}</Text>
+                    <Text style={styles.experience}>{data?.experience} Years Experience</Text>
                     <Text style={styles.experience}>
-                        <Icon name="map-marker" size={20} color="#151E70" /> Karachi
+                        <Icon name="map-marker" size={20} color="#151E70" /> {data?.city}
                     </Text>
                 </View>
             </View>
@@ -25,16 +25,16 @@ const DetailCard = () => {
             <View style={styles.details}>
                 <View style={styles.detailColumn}>
                     <Icon name="phone" size={20} color="#151E70" />
-                    <Text style={styles.detailItem}>(123) 456-7890</Text>
+                    <Text style={styles.detailItem}>{data?.contactNo}</Text>
                 </View>
                 <View style={styles.detailColumn}>
                     <Icon name="envelope" size={20} color="#151E70" />
-                    <Text style={styles.detailItem}>lawyer@gmail.com</Text>
+                    <Text style={styles.detailItem}>{data?.email}</Text>
                 </View>
             </View>
             <Text style={styles.detailItem} >
                 <Icon name="map-marker" size={20} color="#151E70" />
-                A block,sector 32, Gulshan e Iqbal, Karachi, Pakistan</Text>
+                {data?.address}</Text>
         </View>
     )
 }

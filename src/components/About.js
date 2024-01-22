@@ -3,11 +3,11 @@ import { StyleSheet, Text, SafeAreaView, ScrollView, Pressable, View, Image } fr
 import React, { useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const About = () => {
+const About = ({data}) => {
     return (
         <View style={styles.cardContainer}>
             <Text style={styles.heading}>About</Text>
-            <Text style={styles.para}> Molestias at, inventore nobis laborum incidunt, necessitatibus quaerat ratione consequatur ipsum labore, ab fugit corporis. Vero aliquid expedita iure odio minima commodi quod reprehenderit blanditiis omnis dolorum optio modi aperiam dolore, culpa dicta, beatae eligendi autem quos neque itaque quidem nam. Labore!</Text>
+            {data?.about && <Text style={styles.para}>{data?.about}</Text>}
         </View>
     )
 }

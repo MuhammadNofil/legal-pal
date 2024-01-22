@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { StyleSheet, Text, SafeAreaView, ScrollView, Pressable, View, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -10,29 +10,59 @@ import Card from '../../components/Card';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import DetailCard from '../../components/DetailCard';
 import About from '../../components/About';
-const LawyerProfile = ({navigation}) => {
+import axios from 'axios';
+import baseUrl from '../../constants';
+import PageLoader from '../../components/PageLoader';
+const LawyerProfile = ({ navigation, route }) => {
+    const { id } = route.params
+    console.log(id)
+    console.log(route)
+    const [isLoading, setIsLoading] = useState(true)
+    const [data, setData] = useState({})
 
+    const fetchLawyer = async () => {
+        try {
+            const response = await axios.get(`${baseUrl}lawyer/${id}`)
+            if (response?.data?.status === 200) {
+                setData(response?.data?.data)
+                console.log(response?.data?.data)
+                setIsLoading(false)
+            }
+        } catch (error) {
+            console.log(error?.response?.data)
+
+        }
+    }
+    useEffect(() => {
+        fetchLawyer()
+    }, [])
     return (
         <>
-            <Header />
-            <ScrollView style={styles.mainContainer}>
-                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',margin:10 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Image source={require('../../assets/images/landmark.png')} />
-                        <Text style={styles.Heading}>Lawyer Profile</Text>
-                    </View>
-                </View>
-                <SafeAreaView >
-                    <DetailCard/>
-                    <About/>
-                    <View style={{margin : 10}}>
-                    <Pressable style={styles.footer}>
-                        <Text style={styles.footerItem} onPress={()=>navigation.navigate('CreateAppointment')}>Book an Appointment</Text>
-                    </Pressable>
-                    </View>
-                </SafeAreaView>
-            </ScrollView>
-            <Footer />
+            {
+                isLoading ? (<PageLoader />) : (
+                    <>
+                        <Header />
+                        <ScrollView style={styles.mainContainer}>
+                            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', margin: 10 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <Image source={require('../../assets/images/landmark.png')} />
+                                    <Text style={styles.Heading}>Lawyer Profile</Text>
+                                </View>
+                            </View>
+                            <SafeAreaView >
+                                <DetailCard data={data} />
+                                <About data={data} />
+                                <View style={{ margin: 10 }}>
+                                    <Pressable style={styles.footer}  onPress={() => navigation.navigate('CreateAppointment',{data : data})}>
+                                        <Text style={styles.footerItem}>Book an Appointment</Text>
+                                    </Pressable>
+                                </View>
+                            </SafeAreaView>
+                        </ScrollView>
+                        <Footer />
+                    </>
+                )
+            }
         </>
     )
 }

@@ -1,29 +1,79 @@
 /* eslint-disable prettier/prettier */
 import { StyleSheet, Text, SafeAreaView, ScrollView, Pressable, View, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 
-const BookingCard = () => {
+const BookingCard = ({ bodyData, value, setValue, appointmentData }) => {
+
     const [selected, setSelected] = useState('');
     const [open, setOpen] = useState(false);
-    const [value, setValue] = useState(null);
     const [items, setItems] = useState([
         { label: 'Skype', value: 'skype' },
         { label: 'Call', value: 'call' },
         { label: 'Message', value: 'message' },
         { label: 'Visit To My Location', value: 'visit' },
     ]);
-    const category = ['12:00','3:00','4:00','6:00']
+    const [category, setCategory] = useState(['12:00', '3:00', '4:00', '6:00'])
     const [activeChip, setActiveChip] = useState(category[0]);
+    const [markedDates, setMarkedDates] = useState({});
+
+    useEffect(() => {
+        const generateMarkedDates = () => {
+            const dates = {};
+
+            appointmentData?.forEach((appointment) => {
+                const formattedDate = new Date(appointment.date).toISOString().split('T')[0];
+
+                dates[formattedDate] = dates[formattedDate] ? dates[formattedDate] + 1 : 1;
+            });
+
+            Object.keys(dates).forEach((date) => {
+                if (dates[date] === 4) {
+                    dates[date] = { selected: true, marked: true, selectedColor: 'red' };
+                }
+            });
+
+            return dates;
+        };
+
+        const markedDatesResult = generateMarkedDates();
+        setMarkedDates(markedDatesResult);
+    }, [appointmentData]);
+
+
 
     const handleChipPress = (category) => {
         setActiveChip(category);
+        bodyData.time = category
+        bodyData.medium = value
+
     };
+
+    // handling the time availabilt
+    const HandleChip = (day) => {
+        bodyData.date = day?.dateString
+        const filteredAppointments = appointmentData?.filter((appointment) => {
+            const formattedDate = new Date(appointment.date).toISOString().split('T')[0];
+            return formattedDate === day?.dateString
+        });
+        if (filteredAppointments[0]) {
+            const data = filteredAppointments?.map((ele) => {
+                return ele?.time
+            })
+            const newCategory = category?.filter((e) => {
+                return !data?.includes(e);
+            });
+            console.log(newCategory, 'returnData');
+            setCategory(newCategory);
+        } else {
+            setCategory(['12:00', '3:00', '4:00', '6:00'])
+        }
+    }
     return (
         <View style={styles.cardContainer}>
-            <Text style={{color : "#000000",fontSize : 16,margin : 8, fontFamily : 'Inter-Bold'}}>Select Service</Text>
+            <Text style={{ color: "#000000", fontSize: 16, margin: 8, fontFamily: 'Inter-Bold' }}>Select Service</Text>
             <DropDownPicker
                 open={open}
                 value={value}
@@ -33,8 +83,8 @@ const BookingCard = () => {
                 setItems={setItems}
                 placeholder="select medium of communication"
             />
-            <View style={{marginTop : 15}}>
-            <Text style={{color : "#000000",fontSize : 16,margin : 8, fontFamily : 'Inter-Bold'}}>Select Date</Text>
+            <View style={{ marginTop: 15 }}>
+                <Text style={{ color: "#000000", fontSize: 16, margin: 8, fontFamily: 'Inter-Bold' }}>Select Date</Text>
                 <Calendar
                     // Customize the appearance of the calendar
                     style={{
@@ -43,35 +93,43 @@ const BookingCard = () => {
                         height: 350
                     }}
                     // Specify the current date
-                    current={'2024-1-14'}
+                    // current={'2024-1-14'}
                     // Callback that gets called when the user selects a day
-                    onDayPress={day => {
-                        console.log('selected day', day);
-                    }}
+                    onDayPress={day => HandleChip(day)}
+                    // onDayPress={day => {
+                    //     bodyData.date = day?.dateString
+                    //     console.log('selected day', day?.dateString);
+                    //     console.log(bodyData)
+                    // }}
                     // Mark specific dates as marked
-                    markedDates={{
-                        '2012-03-01': { selected: true, marked: true, selectedColor: 'blue' },
-                        '2012-03-02': { marked: true },
-                        '2012-03-03': { selected: true, marked: true, selectedColor: 'blue' }
-                    }}
+                    markedDates={markedDates}
                 />
             </View>
-            <Text style={{color : "#000000",fontSize : 16,margin : 8, fontFamily : 'Inter-Bold'}}> Select Time</Text>
-            <View style={{display :"flex",flexDirection : "row" , flexWrap : 'nowrap' , marginTop : 10}}>
-            {category.map((category, i) => (
-                            <Pressable
-                                key={i}
-                                style={[
-                                    styles.chips,
-                                    {
-                                        backgroundColor: activeChip === category ? '#151E70' : '#D9D9D9',
-                                    },
-                                ]}
-                                onPress={() => handleChipPress(category)}
-                            >
-                                <Text style={{ color: activeChip === category ? '#ffff' : '#000000' }}>{category}</Text>
-                            </Pressable>
-                        ))}
+            <Text style={{ color: "#000000", fontSize: 16, margin: 8, fontFamily: 'Inter-Bold' }}> Select Time</Text>
+            <View style={{ display: "flex", flexDirection: "row", flexWrap: 'nowrap', marginTop: 10 }}>
+                {!!category[0] ? (
+                    category.map((category, i) => (
+                        <Pressable
+                            key={i}
+                            style={[
+                                styles.chips,
+                                {
+                                    backgroundColor: activeChip === category ? '#151E70' : '#D9D9D9',
+                                },
+                            ]}
+                            onPress={() => handleChipPress(category)}
+                        >
+                            <Text style={{ color: activeChip === category ? '#ffff' : '#000000' }}>{category}</Text>
+                        </Pressable>
+                    ))
+                ) : (
+                    <>
+                        <View style={{ justifyContent: "center", alignContent: 'center', alignItems: 'center' }}>
+                            <Text style={{ alignItems: 'center', color: '#000000', fontFamily: "Inter-Bold" }}>Not Available Today</Text>
+                        </View>
+                    </>
+                )}
+
             </View>
         </View>
     )
