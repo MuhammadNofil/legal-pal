@@ -19,6 +19,7 @@ const BookingCard = ({ bodyData, value, setValue, appointmentData }) => {
     const [activeChip, setActiveChip] = useState(category[0]);
     const [markedDates, setMarkedDates] = useState({});
 
+    // handling the day validation
     useEffect(() => {
         const generateMarkedDates = () => {
             const dates = {};
@@ -43,7 +44,7 @@ const BookingCard = ({ bodyData, value, setValue, appointmentData }) => {
     }, [appointmentData]);
 
 
-
+    // handle the timing avalibilty validation
     const handleChipPress = (category) => {
         setActiveChip(category);
         bodyData.time = category
@@ -72,6 +73,7 @@ const BookingCard = ({ bodyData, value, setValue, appointmentData }) => {
         }
     }
     return (
+        <>
         <View style={styles.cardContainer}>
             <Text style={{ color: "#000000", fontSize: 16, margin: 8, fontFamily: 'Inter-Bold' }}>Select Service</Text>
             <DropDownPicker
@@ -132,6 +134,7 @@ const BookingCard = ({ bodyData, value, setValue, appointmentData }) => {
 
             </View>
         </View>
+        </>
     )
 }
 

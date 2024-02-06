@@ -40,8 +40,12 @@ export default function Login({ navigation }) {
     console.log(formData)
     isloading(true)
     setButtonLoading(false)
+    console.log(`${baseUrl}auth/login`)
     try {
-      const response = await axios.post(`${baseUrl}auth/login`, formData)
+      console.log('tryy')
+      const response = await axios.post("http://192.168.1.108:3015/auth/login", formData)
+      console.log(response)
+      // const response = await axios.post(`${baseUrl}auth/login`, formData)
       if (response?.data?.token) {
         try {
           const tokenString = JSON.stringify(response?.data?.token);
@@ -68,10 +72,14 @@ export default function Login({ navigation }) {
         navigation.navigate('PaymentDetails', { user: response?.data?.data });
       }
     } catch (error) {
-      console.log(error?.response?.data?.message, 'error')
+      console.log(error?.message)
+      console.log(error)
+      console.log(error?.response)
+      console.log(error?.response, 'error')
+      isloading(false)
       if (error?.response?.data?.message) {
-        setErrorMessage(error?.response?.data?.message)
         isloading(false)
+        setErrorMessage(error?.response?.data?.message)
         setButtonLoading(true)
         setError(true)
       }
@@ -152,16 +160,18 @@ const styles = StyleSheet.create({
     width: "80%",
   },
   input: {
-    borderWidth: 1,
+    borderWidth: 2,
     backgroundColor: "white",
-    borderColor: "gray",
+    borderColor: "black",
     borderRadius: RFPercentage(4),
     padding: RFPercentage(1.2),
-    fontFamily: "Cabin-Regular",
+    fontFamily: "Inter-Bold",
     fontSize: RFPercentage(1.7),
     paddingLeft: RFPercentage(4),
     marginTop: RFPercentage(2),
+    color : 'black'
   },
+  
   forgotPassword: {
     fontFamily: "Inter-Bold",
     alignSelf: "flex-end",

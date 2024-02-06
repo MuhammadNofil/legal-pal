@@ -15,7 +15,9 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import baseUrl from '../../constants';
 import PageLoader from '../../components/PageLoader';
-const CreateAppointment = ({ navigation, route }) => {
+import ConfirmationModal from '../../components/Modal';
+import { err } from 'react-native-svg';
+const CreateAppointment = ({ navigation, route, }) => {
     const { data } = route.params
     const [bodyData, seBodyDate] = useState({
         date: null,
@@ -28,6 +30,9 @@ const CreateAppointment = ({ navigation, route }) => {
     const [value, setValue] = useState(null);
     const [appointmentData, setAppointmentData] = useState([])
     const [isLoading, setLoading] = useState(true)
+    const [modalVisible, setModalVisible] = useState(false);
+    const [price, setPrice] = useState('');
+
     // form validation
     const validateFormData = () => {
         const errors = {};
@@ -60,44 +65,154 @@ const CreateAppointment = ({ navigation, route }) => {
                     Authorization: token,
                 },
             })
-            console.log(response?.data?.status,'helllooo')
+            console.log(response?.data?.status, 'helllooo')
             if (response?.data?.status === 200) {
                 console.log(response.data.data)
                 setAppointmentData(response?.data?.data)
                 setLoading(false)
-                
             }
         } catch (error) {
             console.log(error?.response?.data)
         }
     }
 
-    // create Appointment
-    const createAppointment = async () => {
-        console.log(bodyData,'bodyDate')
+    // get User to redirect to paymentDetails
+    const getUser = async () => {
+        console.log('user gas')
         try {
-            if (value) {
-                bodyData.medium = value
-            }
-            const errors = validateFormData();
-
-            // Check if there are any errors
-            if (Object.keys(errors).length === 0) {
-                const token = await AsyncStorage.getItem('token')
-                const response = await axios.post(`${baseUrl}appointement`, bodyData, {
-                    headers: {
-                        Authorization: token,
-                    },
-                })
-                console.log(response.data)
-            } else {
-                setErrroMessage("please fill all the data");
-                setError(true)
+            const token = await AsyncStorage.getItem('token')
+            const response = await axios.get(`${baseUrl}user`, {
+                headers: {
+                    Authorization: token
+                }
+            })
+            if (response?.data?.status === 200) {
+                navigation.navigate('PaymentDetails', { user: response?.data?.data })
             }
         } catch (error) {
-            setErrroMessage(error?.response?.data?.message)
-            setError(true)
+            console.log(error?.response)
         }
+    }
+
+    // const check if card Details exist 
+    const getAccountCredentials = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token')
+            const response = await axios.get(`${baseUrl}card`, {
+                headers: {
+                    Authorization: token
+                }
+            })
+            if (response?.data?.data) {
+                console.log('createAppointShouldQwork')
+                createAppointment()
+            } else {
+                getUser()
+            }
+        } catch (error) {
+            console.log(error?.response?.message)
+        }
+    }
+
+    // create Appointment
+    // const createAppointment = async () => {
+    //     console.log(bodyData, 'sasasasasasasasasasasasas')
+    //     try {
+    //         if (value) {
+    //             bodyData.medium = value
+    //         }
+    //         const errors = validateFormData();
+    //         const Date = new Date()
+    //         // console.log(Date,'DADADAD')
+    //         // console.log(bodyData?.date)
+    //         // if (bodyData?.date.toString() === Date.toString()) {
+    //         //     console.log(':LLLLLLLLLLLLLLLLLll')
+    //         //     return setError('You can not book the appointment for the current Date')
+    //         // }
+    //         // Check if there are any errors
+    //         if (Object.keys(errors).length === 0) {
+    //             console.log('hello')
+    //             try {
+    //                 const token = await AsyncStorage.getItem('token')
+    //                 const response = await axios.post(`${baseUrl}appointement`, bodyData, {
+    //                     headers: {
+    //                         Authorization: token,
+    //                     },
+    //                 })
+    //                 setModalVisible(false)
+    //             } catch (error) {
+    //                 console.log(error?.response)
+    //             }
+    //         } else {
+    //             setErrroMessage("please fill all the data");
+    //             setError(true)
+    //             setModalVisible(false)
+    //         }
+    //     } catch (error) {
+    //         console.log(error?.response)
+    //         setErrroMessage(error?.response?.data?.message)
+    //         setError(true)
+    //         setModalVisible(false)
+    //     }
+    // }
+
+    const createAppointment = async () => {
+        if (value) {
+            bodyData.medium = value;
+        }
+        const errors = validateFormData();
+        if (Object.keys(errors).length !== 0) {
+            setErrroMessage("Please fill all the data");
+            setError(true);
+            setModalVisible(false);
+            return; // Exit early if there are validation errors
+        }
+    
+        const today = new Date(); 
+        const convertedDateString = today.toISOString().substring(0, 10); 
+        if (convertedDateString.toString() === bodyData?.date.toString()) {
+            setModalVisible(false)
+            setErrroMessage('Please select a future date for your appointment. We do not allow bookings for the current day.')
+            setError(true);
+            return
+        }
+        if (convertedDateString.toString() > bodyData?.date.toString()) {
+            setModalVisible(false)
+            setErrroMessage('Appointments cannot be booked for past dates. Please select a date from today onwards.')
+            setError(true);
+            return
+        }
+        try {
+            const token = await AsyncStorage.getItem('token');
+            const response = await axios.post(`${baseUrl}appointement`, bodyData, {
+                headers: {
+                    Authorization: token,
+                },
+            });
+            if (response?.data?.status === 200) {
+                setModalVisible(false);
+            }
+        } catch (error) {
+            console.log(error?.response);
+            setErrroMessage(error?.response?.data?.message);
+            setError(true);
+            setModalVisible(false);
+        }
+    };
+    
+
+    const modalHandler = () => {
+        console.log(bodyData?.medium)
+        if (bodyData?.medium === "skype") {
+            setPrice('500');
+        } else if (bodyData?.medium === "call") {
+            setPrice('700');
+        } else if (bodyData?.medium === "message") {
+            setPrice('1000');
+        } else if (bodyData?.medium === "visit") {
+            setPrice('1200');
+        }
+        setModalVisible(true)
     }
 
     useEffect(() => {
@@ -105,6 +220,7 @@ const CreateAppointment = ({ navigation, route }) => {
     }, [])
     return (
         <>
+            {modalVisible && <ConfirmationModal setModalVisible={setModalVisible} modalVisible={modalVisible} getAccountCredentials={getAccountCredentials} price={price} />}
             {
                 isLoading ? (<PageLoader />) : (
                     <>
@@ -119,11 +235,11 @@ const CreateAppointment = ({ navigation, route }) => {
                             <SafeAreaView >
                                 <DetailCard data={data} />
                                 <BookingCard bodyData={bodyData} value={value} setValue={setValue} appointmentData={appointmentData} />
-                                {error && <View style={{ justifyContent: 'center', alignItems: 'center', alignContent: 'center' }}>
+                                {error && <View style={{ justifyContent: 'center', alignItems: 'center', alignContent: 'center' ,flexWrap : 'wrap'}}>
                                     <Text style={{ color: 'red', fontFamily: 'Inter-Bold', fontSize: 16 }}>{errorMessage}</Text>
                                 </View>}
                                 <View style={{ margin: 10 }}>
-                                    <Pressable style={styles.footer} onPress={createAppointment}>
+                                    <Pressable style={styles.footer} onPress={modalHandler}>
                                         <Text style={styles.footerItem}>Create Appointment</Text>
                                     </Pressable>
                                 </View>

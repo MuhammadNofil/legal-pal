@@ -3,7 +3,7 @@ import { SafeAreaView, StyleSheet, View, Text, Image, Pressable } from "react-na
 // import BarChartofOrders from "./BarChart";
 import { RFPercentage } from "react-native-responsive-fontsize";
 // import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
@@ -11,8 +11,15 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import BarChartofOrders from "../../components/BarChart";
 // import NavBar from "./Navigation";
 import LawyerFooter from "../../components/LawyerFooter";
+import PageLoader from "../../components/PageLoader";
+import axios from "axios";
+import baseUrl from "../../constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import LawyerHeader from "../../components/LawyerHeader";
 
 export default function LawyerDashboard({ navigation }) {
+
+    const [isLoading, setLoading] = useState(true)
 
     const gradientSettings = {
         colors: ["#FF8790", "#E8505B"],
@@ -23,48 +30,93 @@ export default function LawyerDashboard({ navigation }) {
     const boxesData = [
         {
             imageSource: "group",
-            insideText: "103",
             outsideText: "Meeting Attended",
+            query: 'completed'
         },
         {
             imageSource: "calendar",
-            insideText: "137 km",
             outsideText: "Upcoming Meeting",
+            query: 'pending'
         },
         {
             imageSource: "times",
-            insideText: "140",
             outsideText: "Cancelled Mettings",
+            query: 'cancel'
         },
         {
             imageSource: "calendar-o",
-            insideText: "174",
+            // insideText: "174",
             outsideText: "Reschedule Requests",
+            query: 'reschedule'
         },
     ];
+    const [data, setData] = useState(boxesData)
+    const [graphData, setGraphData] = useState([])
+    const getCountData = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token')
+            console.log(token)
+            const response = await axios.get(`${baseUrl}lawyer/dashboard`, {
+                headers: {
+                    Authorization: token
+                }
+            })
+            if (response?.data?.status === 200) {
+                setLoading(false)
+                const a = response?.data?.data;
+
+                const lowercaseKeys = Object.keys(a).reduce((acc, key) => {
+                    acc[key] = a[key];
+                    return acc;
+                }, {});
+
+                const newData = data.map((ele) => {
+                    const query = ele.query.toLowerCase();
+                    if (lowercaseKeys.hasOwnProperty(query)) {
+                        ele.count = lowercaseKeys[query];
+                    }
+                    return ele;
+                });
+                setData(newData)
+                setGraphData(response?.data?.data?.graph)
+            }
+        } catch (error) {
+            console.log(error?.response?.data)
+            isLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        getCountData()
+    }, [])
 
     return (
         <>
-            <Header />
-            <SafeAreaView style={{ flex: 1 }}>
-                <ScrollView>
-                    <BarChartofOrders></BarChartofOrders>
-                    <View style={styles.boxcontainer}>
-                        {boxesData.map((box, index) => (
-                            <View key={index} style={styles.boxWrapper}>
-                                <View style={styles.box}>
-                                    <Icon name={box?.imageSource} size={40} color="#FFFF" />
-                                    <Text style={styles.insideText}>{box.insideText}</Text>
-                                </View>
-                                <Text style={styles.outsideText}>{box.outsideText}</Text>
-                                {index % 2 === 1 && <View style={styles.rowSeparator} />}
-                            </View>
-                        ))}
-                    </View>
-                </ScrollView>
-            </SafeAreaView>
-            {/* <NavBar/> */}
-            <LawyerFooter></LawyerFooter>
+            {
+                isLoading ? (<PageLoader />) : (
+                    <>
+                        <LawyerHeader />
+                        <SafeAreaView style={{ flex: 1 }}>
+                            <ScrollView>
+                                <BarChartofOrders graphData={graphData}/>
+                                <Pressable style={styles.boxcontainer} >
+                                    {data.map((box, index) => (
+                                        <Pressable key={index} style={styles.boxWrapper} onPress={() => navigation.navigate('Meeting Details', { query: box?.query })}>
+                                            <View style={styles.box}>
+                                                <Icon name={box?.imageSource} size={40} color="#FFFF" />
+                                                <Text style={styles.insideText}>{box.count}</Text>
+                                            </View>
+                                            <Text style={styles.outsideText}>{box.outsideText}</Text>
+                                            {index % 2 === 1 && <View style={styles.rowSeparator} />}
+                                        </Pressable>
+                                    ))}
+                                </Pressable>
+                            </ScrollView>
+                        </SafeAreaView>
+                        <LawyerFooter></LawyerFooter>
+                    </>
+                )
+            }
         </>
     );
 }

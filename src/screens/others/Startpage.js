@@ -4,7 +4,7 @@ import React from 'react'
 const Startpage = ({navigation}) => {
     setTimeout(()=>{
         navigation.navigate('Login')
-    },2000)
+    },3000)
   return (
     <ImageBackground source={require('../../assets/images/start.png')} style={styles.backGround}>
     </ImageBackground>

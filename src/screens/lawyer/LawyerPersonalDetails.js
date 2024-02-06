@@ -10,7 +10,7 @@ import axios from 'axios';
 import baseUrl from '../../constants';
 import PageLoader from '../../components/PageLoader';
 import LawyerFooter from '../../components/LawyerFooter';
-const PersonalDetails = () => {
+const LawyerPersonalDetailss = () => {
     const [data, setData] = useState({})
     const [isLoading, setLoading] = useState(true)
     const getMe = async () => {
@@ -97,11 +97,14 @@ const PersonalDetails = () => {
                                         </View>
                                     </View>
                                 </View>
-                                
+                                <View style={{marginTop : 40,marginLeft : 70}}>
+                                    <Text  style={{ fontSize: 18, color: '#000000', fontFamily: 'Inter-Bold' }}>About</Text>
+                                    <Text  style={{ fontSize: 18, color: '#000000', fontFamily: 'Inter-Bold' }}>{data?.about}</Text>
+                                </View>
                             </SafeAreaView>
 
                         </ScrollView>
-                        <Footer></Footer>
+                        <LawyerFooter></LawyerFooter>
                     </>
                 )
             }
@@ -109,7 +112,7 @@ const PersonalDetails = () => {
     )
 }
 
-export default PersonalDetails
+export default LawyerPersonalDetailss
 
 const styles = StyleSheet.create({
     image: {

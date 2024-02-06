@@ -25,7 +25,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import baseUrl from '../../constants';
 export default function PaymentDetails({ navigation, route }) {
     const { user } = route.params
-
+    console.log(user)
     const RoleHandler = async () => {
         if (user?.role === 'lawyer') {
             navigation.navigate('LawyerDashboard')

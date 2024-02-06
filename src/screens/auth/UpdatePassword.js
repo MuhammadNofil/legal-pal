@@ -41,7 +41,7 @@ export default function UpdatePassword({ navigation,route }) {
         isloading(false)
         setButtonLoading(true)
         navigation.navigate('Login');
-      1234567}
+    }
     } catch (error) {
       console.log(error?.response?.data?.message, '??????')
       if (error?.response?.data?.message) {

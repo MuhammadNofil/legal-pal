@@ -5,13 +5,13 @@ import { BarChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { RFPercentage } from "react-native-responsive-fontsize";
 
-export default function BarChartofOrders() {
-    const labels = generateMonthLabels(8);
+export default function BarChartofOrders({graphData}) {
+    const labels = generateMonthLabels(12);
     const data = {
         labels: labels,
         datasets: [
             {
-                data: [100, 70, 30, 90, 40, 60, 80, 85],
+                data: graphData,
             },
         ],
     };
@@ -19,7 +19,7 @@ export default function BarChartofOrders() {
     const chartConfig = {
         backgroundGradientFrom: "white",
         backgroundGradientTo: "white",
-        color: () => '#0000000',
+        color: () => '#000000',
         labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
         barRadius: 12,
         barPercentage: 0.7,

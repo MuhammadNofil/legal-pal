@@ -1,23 +1,35 @@
 /* eslint-disable prettier/prettier */
-import { TextInput, StyleSheet, Text, SafeAreaView, ScrollView, Pressable, View, Image, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, SafeAreaView, ScrollView, Pressable, View, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
-// import { TextInput } from 'react-native-gesture-handler'
+import { TextInput } from 'react-native-gesture-handler'
 import { RFPercentage } from 'react-native-responsive-fontsize'
-import Icon from 'react-native-vector-icons/FontAwesome';
-import axios from 'axios'
-import baseUrl from '../../constants'
-
+import LawyerFooter from '../../components/LawyerFooter'
 const dummyData = [
+    { id: 1, text: 'Hello!', user: { id: 1, name: 'From' } },
+    { id: 2, text: 'Hi there!', user: { id: 2, name: 'To' } },
+    { id: 3, text: 'How are you?', user: { id: 1, name: 'From' } },
+    { id: 4, text: "I'm doing well, thanks!", user: { id: 2, name: 'To' } },
+    { id: 5, text: 'What about you?', user: { id: 1, name: 'From' } },
+    { id: 6, text: 'What about you?', user: { id: 1, name: 'From' } },
+    { id: 7, text: 'What about you?', user: { id: 1, name: 'From' } },
+    { id: 8, text: 'What about you?', user: { id: 1, name: 'From' } },
+    { id: 9, text: 'What about you?', user: { id: 1, name: 'From' } },
+    { id: 10, text: 'What about you?', user: { id: 1, name: 'From' } },
+    { id: 11, text: 'What about you?', user: { id: 1, name: 'From' } },
+    { id: 12, text: 'What about you?', user: { id: 1, name: 'From' } },
+    { id: 13, text: 'What about you?', user: { id: 1, name: 'From' } },
+    { id: 14, text: 'What about you?', user: { id: 2, name: 'To' } },
+    { id: 15, text: 'What about you?', user: { id: 2, name: 'To' } },
+    { id: 16, text: 'What about you?', user: { id: 1, name: 'From' } },
+    // Add more messages as needed
 ];
-const ChatScreen = () => {
+const LawyerRoom = () => {
     const [messages, setMessages] = useState([]);
     const [inputText, setInputText] = useState('');
-    const [loading, isLoading] = useState(false);
     const onSendMessage = () => {
         if (inputText.trim() === '') {
-            console.log('byee')
             return;
         }
 
@@ -39,48 +51,15 @@ const ChatScreen = () => {
         scrollToBottom();
     }, [messages]);
 
-    const chatHandler = async () => {
-        if (inputText.length === 0) {
-            console.log(0);
-            return;
-        }
-
-        try {
-            const newMessage = {
-                id: messages.length + 1,
-                text: inputText,
-                user: { id: 2, name: 'to' }
-            };
-            setMessages(prevMessages => [...prevMessages, newMessage]);
-            isLoading(true);
-
-            const response = await axios.get(`${baseUrl}auth/chat?q=${inputText}`);
-            // 
-            if (response?.data) {
-                setInputText("")
-                const newResponseMessage = {
-                    id: messages.length + 2, 
-                    text: response.data,
-                    user: { id: 1, name: 'From' }
-                };
-                setMessages(prevMessages => [...prevMessages, newResponseMessage]);
-
-            }
-
-            isLoading(false);
-        } catch (error) {
-            console.log(error, 'ssssss');
-        }
-    };
-
     return (
         <>
-            <Header />
             <SafeAreaView style={styles.mainContainer}>
-                <ScrollView contentContainerStyle={{ padding: 15 }}>
-                    <View style={{ backgroundColor: '#151E70', height: 150, flex: 1, padding: 5, flexDirection: "row" }}>
-                        <Image source={require("../../assets/images/bot.png")} />
-                        <Text style={{ color: '#FFFF', fontSize: 25, marginTop: 40, marginLeft: 10 }}>Legal Assistant</Text>
+                <ScrollView contentContainerStyle={{}}>
+                <View style={{ backgroundColor: '#151E70', width: '100%', height: 70 }}>
+                        <View style={{ display: 'flex', flexDirection: "row", margin: 20, gap: 20 }}>
+                            <Image source={require('../../assets/images/Dummy.png')} style={{width : 40,height :40,borderRadius :30}} />
+                            <Text style={{ color: '#FFFF', fontSize: 25 }}>John Doe</Text>
+                        </View>
                     </View>
 
                     <SafeAreaView style={styles.mainContainer}>
@@ -91,19 +70,14 @@ const ChatScreen = () => {
                         >
                             <View style={styles.container}>
                                 <View style={styles.messagesContainer}>
-                                    {messages?.map((item) => (
+                                    {dummyData?.map((item) => (
                                         <View
                                             key={item.id}
                                             style={item.user.id === 1 ? styles.toMessage : styles.fromMessage}>
                                             <Text style={styles.messageText}>{item.text}</Text>
                                         </View>
                                     ))}
-                                    {
-                                        loading && <View
-                                            style={styles.toMessage}>
-                                            <Text style={styles.messageText}>typing...</Text>
-                                        </View>
-                                    }
+
                                 </View>
                                 <View style={styles.inputContainer}>
                                 </View>
@@ -113,62 +87,21 @@ const ChatScreen = () => {
                 </ScrollView>
             </SafeAreaView>
 
-            <View style={styles.AgreementContainer}>
-                <View style={{width :'89%'}}>
-                <TextInput
-                    onChangeText={newText => setInputText(newText)}
-                    placeholder="Ask a question"
-                    multiline={true}
-                    style ={{width : "90%"}}
-                    value={inputText}
-                />
-                </View>
-                
-                <TouchableOpacity style={styles.verifyButton} onPress={chatHandler} disabled={loading}>
-                    <Icon name="send" size={24} color="black" />
-                </TouchableOpacity>
-            </View>
-
-
-            <Footer></Footer>
+            <TextInput
+                style={styles.input}
+                placeholder="Ask A Question"
+                secureTextEntry={true}
+            // onChangeText={(text) => setPassword(text)}
+            // value={password}
+            />
+            <LawyerFooter></LawyerFooter>
         </>
     )
 }
 
-export default ChatScreen
+export default LawyerRoom
 
 const styles = StyleSheet.create({
-    AgreementContainer :{
-        backgroundColor : "#FFF",
-            // backgroundColor: "white",
-        borderColor: "gray",
-        borderRadius: RFPercentage(4),
-        borderWidth: 1, // Set border width to 0
-        alignItems :'center'
-    },
-    verifyButton: {
-        position: 'absolute',
-        alignSelf: 'center',
-        right: 15,
-        top: 15
-    },
-
-    iconcontainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'gray',
-        borderRadius: 5,
-        paddingHorizontal: 10,
-        marginBottom: 10,
-    },
-    // input: {
-    //     flex: 1,
-    //     paddingVertical: 10,
-    // },
-    iconContainer: {
-        padding: 10,
-    },
     container: {
         flex: 1,
         justifyContent: 'space-between',
@@ -176,14 +109,13 @@ const styles = StyleSheet.create({
     },
     messagesContainer: {
         flex: 1,
-        // marginBottom: ,
-        
+        marginBottom: 16,
     },
     fromMessage: {
         alignSelf: 'flex-end',
-        backgroundColor: 'green',
+        backgroundColor: '#151E70',
         color: 'white',
-        padding: 15,
+        padding: 8,
         borderRadius: 8,
         marginBottom: 8,
         maxWidth: '70%',
@@ -191,22 +123,28 @@ const styles = StyleSheet.create({
     toMessage: {
         alignSelf: 'flex-start',
         backgroundColor: '#151E70',
-        padding: 15,
+        padding: 8,
         borderRadius: 8,
         marginBottom: 8,
         maxWidth: '70%',
-        marginTop :5
     },
     messageText: {
-        fontSize: 14,
-        color: "#FFFF",
-        fontFamily : "Inter-Bold"
+        fontSize: 16,
+        color: "#FFFF"
     },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
     },
-
+    input: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: RFPercentage(4),
+        paddingVertical: RFPercentage(1.2),
+        paddingHorizontal: RFPercentage(4),
+        marginRight: 8,
+    },
     sendButton: {
         backgroundColor: '#4CAF50',
         paddingVertical: RFPercentage(1.5),
@@ -224,19 +162,16 @@ const styles = StyleSheet.create({
         marginBottom: 30
     },
     input: {
-        borderWidth: 0,
-        // backgroundColor: "white",
-        // borderColor: "gray",
-        // borderRadius: RFPercentage(4),
-        // borderWidth: 0, // Set border width to 0
-    borderColor: 'transparent',
+        borderWidth: 1,
+        backgroundColor: "white",
+        borderColor: "gray",
+        borderRadius: RFPercentage(4),
         padding: RFPercentage(1.2),
         fontFamily: "Cabin-Regular",
         fontSize: RFPercentage(1.7),
         paddingLeft: RFPercentage(4),
         marginTop: RFPercentage(2),
-        alignContent: 'center',
-        color: "#000000"
+        alignContent: 'center'
     },
     Title: {
         fontSize: 16,
