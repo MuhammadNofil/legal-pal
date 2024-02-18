@@ -29,50 +29,7 @@ const Notifications = () => {
                                 </View>
                             </View>
                             <View style={{ height: 5, width: "100%", backgroundColor: "#FFFF" }}></View>
-                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', margin: 20 }}>
-                                <Image source={require("../../assets/images/Dummy.png")} style={{ width: 70, height: 70, borderRadius: 35 }} />
-                                <View style={{ marginLeft: 15 }}>
-                                    <Text style={{ color: '#FFFF', fontSize: 14, fontFamily: "Inter-Bold" }}>john Has Set A meeting with you</Text>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-                                        <View style={{ backgroundColor: "yellow", height: 10, width: 10, borderWidth: 1, borderRadius: 20 }}></View>
-                                        <Text style={{ marginLeft: 5, color: '#FFFF', fontSize: 14, fontFamily: "Inter-Bold" }}>1 Min ago</Text>
-                                    </View>
-                                </View>
-                            </View>
-                            <View style={{ height: 5, width: "100%", backgroundColor: "#FFFF" }}></View>
-                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', margin: 20 }}>
-                                <Image source={require("../../assets/images/Dummy.png")} style={{ width: 70, height: 70, borderRadius: 35 }} />
-                                <View style={{ marginLeft: 15 }}>
-                                    <Text style={{ color: '#FFFF', fontSize: 14, fontFamily: "Inter-Bold" }}>john Has Set A meeting with you</Text>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-                                        <View style={{ backgroundColor: "yellow", height: 10, width: 10, borderWidth: 1, borderRadius: 20 }}></View>
-                                        <Text style={{ marginLeft: 5, color: '#FFFF', fontSize: 14, fontFamily: "Inter-Bold" }}>1 Min ago</Text>
-                                    </View>
-                                </View>
-                            </View>
-                            <View style={{ height: 5, width: "100%", backgroundColor: "#FFFF" }}></View>
-                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', margin: 20 }}>
-                                <Image source={require("../../assets/images/Dummy.png")} style={{ width: 70, height: 70, borderRadius: 35 }} />
-                                <View style={{ marginLeft: 15 }}>
-                                    <Text style={{ color: '#FFFF', fontSize: 14, fontFamily: "Inter-Bold" }}>john Has Set A meeting with you</Text>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-                                        <View style={{ backgroundColor: "yellow", height: 10, width: 10, borderWidth: 1, borderRadius: 20 }}></View>
-                                        <Text style={{ marginLeft: 5, color: '#FFFF', fontSize: 14, fontFamily: "Inter-Bold" }}>1 Min ago</Text>
-                                    </View>
-                                </View>
-                            </View>
-                            <View style={{ height: 5, width: "100%", backgroundColor: "#FFFF" }}></View>
-                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', margin: 20 }}>
-                                <Image source={require("../../assets/images/Dummy.png")} style={{ width: 70, height: 70, borderRadius: 35 }} />
-                                <View style={{ marginLeft: 15 }}>
-                                    <Text style={{ color: '#FFFF', fontSize: 14, fontFamily: "Inter-Bold" }}>john Has Set A meeting with you</Text>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-                                        <View style={{ backgroundColor: "yellow", height: 10, width: 10, borderWidth: 1, borderRadius: 20 }}></View>
-                                        <Text style={{ marginLeft: 5, color: '#FFFF', fontSize: 14, fontFamily: "Inter-Bold" }}>1 Min ago</Text>
-                                    </View>
-                                </View>
-                            </View>
-                            <View style={{ height: 5, width: "100%", backgroundColor: "#FFFF" }}></View>
+                            
                         </SafeAreaView>
 
                     </ScrollView>

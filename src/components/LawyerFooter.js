@@ -10,7 +10,7 @@ export default function LawyerFooter({}) {
   const navButtons = [
     { icon: require("../assets/images/vector4.png"), screenName: "LawyerDashboard" },
     // { icon: require("../assets/images/vector2.png"), screenName: "FindLawyer" },
-    { icon: require("../assets/images/vector3.png"), screenName: "ChatScreen" },
+    // { icon: require("../assets/images/vector3.png"), screenName: "ChatScreen" },
     { icon: require("../assets/images/vector1.png"), screenName: "LawyerPersonalDetails" },
     // {
     //   icon: require("../assets/wallet.png"),

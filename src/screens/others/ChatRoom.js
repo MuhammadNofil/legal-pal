@@ -5,6 +5,14 @@ import Header from '../../components/Header'
 import Footer from '../../components/Footer'
 import { TextInput } from 'react-native-gesture-handler'
 import { RFPercentage } from 'react-native-responsive-fontsize'
+import axios from 'axios'
+import baseUrl from '../../constants'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import Icon from 'react-native-vector-icons/FontAwesome';
+import io from 'socket.io-client';
+
+const socket = io(`${baseUrl}`);
+
 const dummyData = [
     { id: 1, text: 'Hello!', user: { id: 1, name: 'From' } },
     { id: 2, text: 'Hi there!', user: { id: 2, name: 'To' } },
@@ -24,8 +32,11 @@ const dummyData = [
     { id: 16, text: 'What about you?', user: { id: 1, name: 'From' } },
     // Add more messages as needed
 ];
-const ChatRoom = () => {
+const ChatRoom = ({ route }) => {
+    console.log(route.params, 'dadssas')
     const [messages, setMessages] = useState([]);
+    const [user, setUser] = useState({});
+    const [loading, isLoading] = useState(false);
     const [inputText, setInputText] = useState('');
     const onSendMessage = () => {
         if (inputText.trim() === '') {
@@ -46,54 +57,132 @@ const ChatRoom = () => {
         scrollViewRef.current.scrollToEnd({ animated: true });
     };
 
+
+    const getMessages = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token')
+            const response = await axios.get(`${baseUrl}chats/messages/${route.params.roomId}`, {
+                headers: {
+                    Authorization: token
+                }
+            })
+            console.log(response?.data)
+            setMessages(response.data.data)
+            isLoading(false)
+        }
+        catch (e) {
+            console.log(e)
+        }
+    }
+    const chatHandler = async () => {
+        console.log(inputText)
+        if (!inputText) {
+            return
+        }
+        try {
+            const data = {
+                id : 'dummyId',
+                text: inputText,
+                to: route?.params?.userId,
+                roomId: route?.params?.roomId,
+                from: user?._id
+            }
+            socket.emit('msg', data)
+            // const newResponseMessage = {
+            //     id: messages.length + 2,
+            //     text: response.data?.data,
+            //     user: { id: 1, name: 'From' }
+            // };
+            setMessages(prevMessages => [...prevMessages, data]);
+            setInputText('')
+        } catch (error) {
+
+        }
+    }
+
+    const me = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token')
+            const me = await axios.get(`${baseUrl}user`, {
+                headers: {
+                    Authorization: token
+                }
+            })
+            setUser(me?.data?.data)
+            // console.log(me?.data?.data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+        me()
+        getMessages()
+    }, []);
 
     return (
         <>
-            <SafeAreaView style={styles.mainContainer}>
-                <ScrollView contentContainerStyle={{}}>
-                <View style={{ backgroundColor: '#151E70', width: '100%', height: 70 }}>
-                        <View style={{ display: 'flex', flexDirection: "row", margin: 20, gap: 20 }}>
-                            <Image source={require('../../assets/images/Dummy.png')} style={{width : 40,height :40,borderRadius :30}} />
-                            <Text style={{ color: '#FFFF', fontSize: 25 }}>John Doe</Text>
-                        </View>
-                    </View>
+            {
+                loading ? <Text>Loading</Text> : (
+                    <>
+                        <SafeAreaView style={styles.mainContainer}>
+                            <ScrollView contentContainerStyle={{}}>
+                                <View style={{ backgroundColor: '#151E70', width: '100%', height: 70 }}>
+                                    <View style={{ display: 'flex', flexDirection: "row", margin: 20, gap: 20 }}>
+                                        <Image source={require('../../assets/images/Dummy.png')} style={{ width: 40, height: 40, borderRadius: 30 }} />
+                                        <Text style={{ color: '#FFFF', fontSize: 25 }}>John Doe</Text>
+                                    </View>
+                                </View>
 
-                    <SafeAreaView style={styles.mainContainer}>
-                        <ScrollView
-                            ref={scrollViewRef}
-                            contentContainerStyle={styles.messagesContainer}
-                            onContentSizeChange={scrollToBottom}
-                        >
-                            <View style={styles.container}>
-                                <View style={styles.messagesContainer}>
-                                    {dummyData?.map((item) => (
-                                        <View
-                                            key={item.id}
-                                            style={item.user.id === 1 ? styles.toMessage : styles.fromMessage}>
-                                            <Text style={styles.messageText}>{item.text}</Text>
+                                <SafeAreaView style={styles.mainContainer}>
+                                    <ScrollView
+                                        ref={scrollViewRef}
+                                        contentContainerStyle={styles.messagesContainer}
+                                        onContentSizeChange={scrollToBottom}
+                                    >
+                                        <View style={styles.container}>
+                                            <View style={styles.messagesContainer}>
+                                                {messages?.map((item) => (
+                                                    <View
+                                                    key={item._id}
+                                                    style={item?.to.toString() !== user?._id.toString() ? styles.toMessage : styles.fromMessage}>
+                                                 <Text style={styles.messageText}>{item.text}</Text>        
+                                                    </View>
+                                                    // <View
+                                                    //     key={item.id}
+                                                    //     style={item.user.id === 1 ? styles.toMessage : styles.fromMessage}>
+                                                    // </View>
+                                                ))}
+
+                                            </View>
+                                            <View style={styles.inputContainer}>
+                                            </View>
                                         </View>
-                                    ))}
+                                    </ScrollView>
+                                </SafeAreaView>
+                            </ScrollView>
+                        </SafeAreaView>
 
-                                </View>
-                                <View style={styles.inputContainer}>
-                                </View>
+                        <View style={styles.AgreementContainer}>
+                            <View style={{ width: '89%' }}>
+                                <TextInput
+                                    onChangeText={newText => setInputText(newText)}
+                                    placeholder="Send A Message"
+                                    multiline={true}
+                                    style={{ width: "90%" }}
+                                    value={inputText}
+                                />
                             </View>
-                        </ScrollView>
-                    </SafeAreaView>
-                </ScrollView>
-            </SafeAreaView>
 
-            <TextInput
-                style={styles.input}
-                placeholder="Ask A Question"
-                secureTextEntry={true}
-            // onChangeText={(text) => setPassword(text)}
-            // value={password}
-            />
-            <Footer></Footer>
+                            <TouchableOpacity style={styles.verifyButton} onPress={chatHandler} disabled={false}>
+                                <Icon name="send" size={24} color="black" />
+                            </TouchableOpacity>
+                        </View>
+                        <Footer></Footer>
+                    </>
+                )
+            }
         </>
     )
 }
@@ -101,6 +190,20 @@ const ChatRoom = () => {
 export default ChatRoom
 
 const styles = StyleSheet.create({
+    AgreementContainer: {
+        backgroundColor: "#FFF",
+        // backgroundColor: "white",
+        borderColor: "gray",
+        borderRadius: RFPercentage(4),
+        borderWidth: 1, // Set border width to 0
+        alignItems: 'center'
+    },
+    verifyButton: {
+        position: 'absolute',
+        alignSelf: 'center',
+        right: 15,
+        top: 15
+    },
     container: {
         flex: 1,
         justifyContent: 'space-between',

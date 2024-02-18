@@ -1,9 +1,17 @@
 /* eslint-disable prettier/prettier */
 import { StyleSheet, Text, SafeAreaView, ScrollView, Pressable, View, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
-const UserHome = () => {
+import io from 'socket.io-client';
+import baseUrl from '../../constants';
+const socket = io(`${baseUrl}`);
+const UserHome = ({ navigation, route }) => {
+    // const { email } = route.params
+    console.log(route?.params?.user?._id)
+    useEffect(()=>{
+        socket.emit('join',{id : route?.params?.user?._id})
+    })
     const images = [
         { source: require('../../assets/images/Dummy.png'), text: 'Image 1' },
         { source: require('../../assets/images/Dummy.png'), text: 'Image 2' },

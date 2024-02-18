@@ -45,6 +45,29 @@ const ChatScreen = () => {
             return;
         }
 
+        // try {
+        //     const newMessage = {
+        //         id: messages.length + 1,
+        //         text: inputText,
+        //         user: { id: 2, name: 'to' }
+        //     };
+        //     setMessages(prevMessages => [...prevMessages, newMessage]);
+        //     isLoading(true);
+
+        //     const response = await axios.get(`${baseUrl}auth/chat?q=${inputText}`);
+        //     // 
+        //     if (response?.data) {
+        //         setInputText("")
+        //         const newResponseMessage = {
+        //             id: messages.length + 2, 
+        //             text: response.data,
+        //             user: { id: 1, name: 'From' }
+        //         };
+        //         setMessages(prevMessages => [...prevMessages, newResponseMessage]);
+
+        //     }
+
+        //     isLoading(false);
         try {
             const newMessage = {
                 id: messages.length + 1,
@@ -53,21 +76,20 @@ const ChatScreen = () => {
             };
             setMessages(prevMessages => [...prevMessages, newMessage]);
             isLoading(true);
-
-            const response = await axios.get(`${baseUrl}auth/chat?q=${inputText}`);
-            // 
+            const response = await axios.get(`${baseUrl}auth/openApi?q=${inputText}`);
+            console.log(response?.data)
             if (response?.data) {
                 setInputText("")
                 const newResponseMessage = {
-                    id: messages.length + 2, 
-                    text: response.data,
+                    id: messages.length + 2,
+                    text: response.data?.data,
                     user: { id: 1, name: 'From' }
                 };
                 setMessages(prevMessages => [...prevMessages, newResponseMessage]);
 
             }
-
             isLoading(false);
+
         } catch (error) {
             console.log(error, 'ssssss');
         }
@@ -114,16 +136,16 @@ const ChatScreen = () => {
             </SafeAreaView>
 
             <View style={styles.AgreementContainer}>
-                <View style={{width :'89%'}}>
-                <TextInput
-                    onChangeText={newText => setInputText(newText)}
-                    placeholder="Ask a question"
-                    multiline={true}
-                    style ={{width : "90%"}}
-                    value={inputText}
-                />
+                <View style={{ width: '89%' }}>
+                    <TextInput
+                        onChangeText={newText => setInputText(newText)}
+                        placeholder="Ask a question"
+                        multiline={true}
+                        style={{ width: "90%" }}
+                        value={inputText}
+                    />
                 </View>
-                
+
                 <TouchableOpacity style={styles.verifyButton} onPress={chatHandler} disabled={loading}>
                     <Icon name="send" size={24} color="black" />
                 </TouchableOpacity>
@@ -138,13 +160,13 @@ const ChatScreen = () => {
 export default ChatScreen
 
 const styles = StyleSheet.create({
-    AgreementContainer :{
-        backgroundColor : "#FFF",
-            // backgroundColor: "white",
+    AgreementContainer: {
+        backgroundColor: "#FFF",
+        // backgroundColor: "white",
         borderColor: "gray",
         borderRadius: RFPercentage(4),
         borderWidth: 1, // Set border width to 0
-        alignItems :'center'
+        alignItems: 'center'
     },
     verifyButton: {
         position: 'absolute',
@@ -177,7 +199,7 @@ const styles = StyleSheet.create({
     messagesContainer: {
         flex: 1,
         // marginBottom: ,
-        
+
     },
     fromMessage: {
         alignSelf: 'flex-end',
@@ -195,12 +217,12 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginBottom: 8,
         maxWidth: '70%',
-        marginTop :5
+        marginTop: 5
     },
     messageText: {
         fontSize: 14,
         color: "#FFFF",
-        fontFamily : "Inter-Bold"
+        fontFamily: "Inter-Bold"
     },
     inputContainer: {
         flexDirection: 'row',
@@ -229,7 +251,7 @@ const styles = StyleSheet.create({
         // borderColor: "gray",
         // borderRadius: RFPercentage(4),
         // borderWidth: 0, // Set border width to 0
-    borderColor: 'transparent',
+        borderColor: 'transparent',
         padding: RFPercentage(1.2),
         fontFamily: "Cabin-Regular",
         fontSize: RFPercentage(1.7),

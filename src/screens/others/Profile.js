@@ -192,6 +192,8 @@ export default function Profile({ navigation, route }) {
           />
         </View>}
         {isError && <Text style={styles.error}>{errorMessage}</Text>}
+        
+        
         <TouchableOpacity
           style={styles.buttonregister}
           onPress={handleSubmit(onPressSend)}

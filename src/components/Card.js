@@ -81,14 +81,14 @@ const Card = ({ ele }) => {
                 <View style={styles.divider}></View>
 
                 <View style={styles.details}>
-                    <View style={styles.detailColumn}>
+                    {/* <View style={styles.detailColumn}>
                         <Icon name="phone" size={20} color="#151E70" />
                         <Text style={styles.detailItem}>{ele?.contactNo}</Text>
-                    </View>
-                    <View style={styles.detailColumn}>
+                    </View> */}
+                    {/* <View style={styles.detailColumn}>
                         <Icon name="envelope" size={20} color="#151E70" />
                         <Text style={styles.detailItem}>{ele?.email}</Text>
-                    </View>
+                    </View> */}
                 </View>
                 <Text style={styles.detailItem} >
                     <Icon name="map-marker" size={20} color="#151E70" />

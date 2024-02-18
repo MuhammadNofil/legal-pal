@@ -43,7 +43,7 @@ export default function Login({ navigation }) {
     console.log(`${baseUrl}auth/login`)
     try {
       console.log('tryy')
-      const response = await axios.post("http://192.168.1.108:3015/auth/login", formData)
+      const response = await axios.post(`${baseUrl}auth/login`, formData)
       console.log(response)
       // const response = await axios.post(`${baseUrl}auth/login`, formData)
       if (response?.data?.token) {
@@ -65,6 +65,7 @@ export default function Login({ navigation }) {
       } else if (response?.data?.status === 200 && response?.data?.data?.role === "user" && response?.data?.data?.accountDetails !== false) {
         isloading(false)
         setButtonLoading(true)
+        console.log(response.data.data)
         navigation.navigate('Userhome', { user: response?.data?.data });
       } else if (response?.data?.status === 200 && response?.data?.data?.accountDetails === false) {
         isloading(false)

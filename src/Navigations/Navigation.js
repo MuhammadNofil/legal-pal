@@ -33,7 +33,7 @@ import UpdateProfile from '../screens/others/UpdateProfile.js'
 const Stack = createStackNavigator();
 const Navigation = () => {
   return (
-    <Stack.Navigator initialRouteName="ChatScreen">
+    <Stack.Navigator initialRouteName="Startpage">
       <Stack.Screen name="Startpage" component={Startpage} options={{headerShown: false}}/>
       <Stack.Screen name="Login" component={Login} options={{headerShown: false}}/>
       <Stack.Screen name="Signup" component={SignUp} options={{headerShown : false }} />
